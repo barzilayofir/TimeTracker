@@ -1,29 +1,40 @@
 package com.projects.ofirbarzilay.timetracker;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.projects.ofirbarzilay.timetracker.adatpters.TimeRecord;
-import com.projects.ofirbarzilay.timetracker.adatpters.TimeTrackerAdapter;
+import com.projects.ofirbarzilay.timetracker.adatpters.TimeTrackerCursorAdapter;
+import com.projects.ofirbarzilay.timetracker.helpers.TimeTrackerDatabaseHelper;
 
 
 public class MainActivity extends ActionBarActivity {
 
-    private TimeTrackerAdapter timeTrackerAdapter;
+    private TimeTrackerCursorAdapter timeTrackerAdapter;
     public static final int TIME_ENTRY_REQUEST_CODE = 1;
+    private SQLiteDatabase database;
+    private TimeTrackerDatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            databaseHelper = new TimeTrackerDatabaseHelper(this);
+            database = databaseHelper.getWritableDatabase();
 
-        ListView listView = (ListView) findViewById(R.id.times_list);
-        timeTrackerAdapter = new TimeTrackerAdapter();
-        listView.setAdapter(timeTrackerAdapter);
+            ListView listView = (ListView) findViewById(R.id.times_list);
+            timeTrackerAdapter = new TimeTrackerCursorAdapter(this, databaseHelper.getAllTimeRecords());
+            listView.setAdapter(timeTrackerAdapter);
+        }
+        catch(Exception e) {
+            Log.e("onCreate", "failed to create app", e);
+        }
     }
 
 
@@ -54,13 +65,23 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == TIME_ENTRY_REQUEST_CODE && (resultCode == RESULT_OK)){
-            String time = data.getStringExtra("time");
-            String notes = data.getStringExtra("notes");
-            TimeRecord timeRecord = new TimeRecord(time, notes);
-            timeTrackerAdapter.addTimeRecord(timeRecord);
-            timeTrackerAdapter.notifyDataSetChanged();
-        }
+       try {
+           super.onActivityResult(requestCode, resultCode, data);
+           if (requestCode == TIME_ENTRY_REQUEST_CODE && (resultCode == RESULT_OK)) {
+               String time = data.getStringExtra("time");
+               String notes = data.getStringExtra("notes");
+
+               databaseHelper.saveTimeRecord(time, notes);
+               timeTrackerAdapter.changeCursor(databaseHelper.getAllTimeRecords());
+
+               //TimeRecord timeRecord = new TimeRecord(time, notes);
+               //timeTrackerAdapter.addTimeRecord(timeRecord);
+               //timeTrackerAdapter.notifyDataSetChanged();
+
+           }
+       }
+       catch(Exception e){
+           Log.e("onActivityResult", "failed", e);
+       }
     }
 }

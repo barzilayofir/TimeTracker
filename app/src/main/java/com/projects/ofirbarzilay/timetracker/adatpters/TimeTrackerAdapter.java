@@ -18,14 +18,14 @@ public class TimeTrackerAdapter extends BaseAdapter {
     private ArrayList<TimeRecord> times = new ArrayList<TimeRecord>();
 
     public TimeTrackerAdapter() {
-        times.add(new TimeRecord(
-                "38:23", "Feeling good!"));
-        times.add(new TimeRecord(
-                "49:01", "Tired. Needed more caffeine"));
-        times.add(new TimeRecord(
-                "26:21", "I’m rocking it!"));
-        times.add(new TimeRecord(
-                "29:42", "Lost some time on the hills, but pretty good."));
+//        times.add(new TimeRecord(
+//                "38:23", "Feeling good!"));
+//        times.add(new TimeRecord(
+//                "49:01", "Tired. Needed more caffeine"));
+//        times.add(new TimeRecord(
+//                "26:21", "I’m rocking it!"));
+//        times.add(new TimeRecord(
+//                "29:42", "Lost some time on the hills, but pretty good."));
     }
 
     @Override
